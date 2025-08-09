@@ -1,0 +1,47 @@
+.ns-vr-swatches-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.ns-vr-swatch {
+    cursor: pointer;
+    border: 2px solid #e0e0e0;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.ns-vr-swatch:hover {
+    border-color: #999;
+}
+
+.ns-vr-swatch.selected {
+    border-color: #000;
+    box-shadow: 0 0 3px rgba(0,0,0,0.4);
+}
+
+.ns-vr-swatch-color {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.ns-vr-swatch-label {
+    padding: 0 10px;
+    font-size: 14px;
+    text-align: center;
+    color: #333;
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+}
+
+.ns-vr-swatch.selected .ns-vr-swatch-label {
+    background-color: #333;
+    color: #fff;
+    border-color: #000;
+}
