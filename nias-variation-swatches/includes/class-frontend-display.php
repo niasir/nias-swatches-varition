@@ -53,28 +53,46 @@ class NS_VR_Frontend_Display {
 
     public function get_swatches_html( $html, $args ) {
         $product = $args['product'];
-        $attribute = $args['attribute'];
+        $attribute_name = $args['attribute'];
 
-        // This function is deprecated since WC 2.4, but we keep it for compatibility.
-        // For newer versions, we get terms from $args['options'].
         $terms = $args['options'];
         if (empty($terms) && $product && $product->is_type('variable')) {
             $attributes = $product->get_variation_attributes();
-            $terms = $attributes[$attribute];
+            $terms = $attributes[$attribute_name];
         }
 
-        $attribute_tax = get_taxonomy( $attribute );
+        // Determine the display type
+        $attribute_id = wc_attribute_taxonomy_id_by_name( $attribute_name );
+        $attribute_display_type = get_option( 'ns_vr_attribute_display_type_' . $attribute_id );
+
+        if ( ! $attribute_display_type || $attribute_display_type === 'default' ) {
+            $global_settings = get_option( 'ns_vr_settings' );
+            $display_type = isset( $global_settings['default_type'] ) ? $global_settings['default_type'] : 'button';
+        } else {
+            $display_type = $attribute_display_type;
+        }
+
+        // Fallback for safety
+        if ($display_type !== 'color' && $display_type !== 'button') {
+             $display_type = 'button';
+        }
+
+        // Check if we should render swatches for this attribute type at all
+        $attribute_obj = wc_get_attribute($attribute_id);
+        if ($attribute_obj && $attribute_obj->type !== 'select') {
+            return $html; // Return original dropdown for non-select types.
+        }
 
         ob_start();
 
         wc_get_template(
             'variation-swatches.php',
             array(
-                'terms'     => $terms,
-                'taxonomy'  => $attribute_tax,
-                'attribute' => $attribute,
-                'product'   => $product,
-                'args'      => $args,
+                'terms'        => $terms,
+                'attribute'    => $attribute_name,
+                'product'      => $product,
+                'args'         => $args,
+                'display_type' => $display_type,
             ),
             '',
             NS_VR_PLUGIN_PATH . 'templates/'

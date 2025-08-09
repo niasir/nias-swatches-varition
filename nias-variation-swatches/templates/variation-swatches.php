@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $attribute_name = $args['attribute'];
 $options = $args['options'];
 $product = $args['product'];
+// $display_type is passed from the calling function in class-frontend-display.php
 $selected_value = isset( $_REQUEST[ 'attribute_' . sanitize_title( $attribute_name ) ] ) ? wc_clean( wp_unslash( $_REQUEST[ 'attribute_' . sanitize_title( $attribute_name ) ] ) ) : $product->get_variation_default_attribute( $attribute_name );
 
 ?>
@@ -19,7 +20,6 @@ $selected_value = isset( $_REQUEST[ 'attribute_' . sanitize_title( $attribute_na
     <?php
     if ( ! empty( $options ) ) {
         if ( $product && taxonomy_exists( $attribute_name ) ) {
-            // Get terms if this is a taxonomy - ordered. We need the names and slugs.
             $terms = wc_get_product_terms( $product->get_id(), $attribute_name, array( 'fields' => 'all' ) );
 
             foreach ( $terms as $term ) {
@@ -28,20 +28,27 @@ $selected_value = isset( $_REQUEST[ 'attribute_' . sanitize_title( $attribute_na
                 }
 
                 $is_selected = ( $selected_value === $term->slug );
-                $color = get_term_meta( $term->term_id, 'ns_vr_color', true );
-                $color = ! empty( $color ) ? sanitize_hex_color( $color ) : '';
-
                 $swatch_class = 'ns-vr-swatch';
                 if ( $is_selected ) {
                     $swatch_class .= ' selected';
                 }
+
+                $swatch_class .= ' ns-vr-swatch-' . esc_attr($display_type);
+
                 ?>
                 <div class="<?php echo esc_attr( $swatch_class ); ?>" data-value="<?php echo esc_attr( $term->slug ); ?>" title="<?php echo esc_attr( $term->name ); ?>">
-                    <?php if ( ! empty( $color ) ) : ?>
-                        <span class="ns-vr-swatch-color" style="background-color: <?php echo esc_attr( $color ); ?>;"></span>
-                    <?php else : ?>
-                        <span class="ns-vr-swatch-label"><?php echo esc_html( $term->name ); ?></span>
-                    <?php endif; ?>
+                    <?php
+                    $color = get_term_meta( $term->term_id, 'ns_vr_color', true );
+                    $color = ! empty( $color ) ? sanitize_hex_color( $color ) : '';
+
+                    if ( $display_type === 'color' && ! empty( $color ) ) {
+                        // Color type swatch
+                        echo '<span class="ns-vr-swatch-color" style="background-color: ' . esc_attr( $color ) . ';"></span>';
+                    } else {
+                        // Button type swatch
+                        echo '<span class="ns-vr-swatch-label">' . esc_html( $term->name ) . '</span>';
+                    }
+                    ?>
                 </div>
                 <?php
             }
