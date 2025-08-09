@@ -18,7 +18,7 @@ class NS_VR_Frontend_Display {
 
     public function enqueue_scripts() {
         if ( is_product() ) {
-            global $product;
+            $product = wc_get_product( get_the_ID() );
             if ( $product && $product->is_type( 'variable' ) ) {
                 wp_enqueue_style( 'ns-vr-frontend-style', NS_VR_PLUGIN_URL . 'assets/css/frontend.css', array(), NS_VR_VERSION );
                 wp_enqueue_script( 'ns-vr-frontend-script', NS_VR_PLUGIN_URL . 'assets/js/frontend.js', array( 'jquery' ), NS_VR_VERSION, true );
